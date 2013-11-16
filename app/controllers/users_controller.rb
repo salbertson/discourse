@@ -6,7 +6,7 @@ require_dependency 'avatar_upload_service'
 class UsersController < ApplicationController
 
   skip_before_filter :authorize_mini_profiler, only: [:avatar]
-  skip_before_filter :check_xhr, only: [:show, :password_reset, :update, :activate_account, :authorize_email, :user_preferences_redirect, :avatar]
+  skip_before_filter :check_xhr, only: [:show, :update, :activate_account, :authorize_email, :user_preferences_redirect, :avatar]
 
   before_filter :ensure_logged_in, only: [:username, :update, :change_email, :user_preferences_redirect, :upload_avatar, :toggle_avatar]
 
@@ -19,8 +19,7 @@ class UsersController < ApplicationController
                                                             :get_honeypot_value,
                                                             :activate_account,
                                                             :send_activation_email,
-                                                            :authorize_email,
-                                                            :password_reset]
+                                                            :authorize_email]
 
   def show
     @user = fetch_user_from_params
@@ -137,33 +136,6 @@ class UsersController < ApplicationController
   def get_honeypot_value
     render json: {value: honeypot_value, challenge: challenge_value}
   end
-
-  def password_reset
-    expires_now()
-
-    @user = EmailToken.confirm(params[:token])
-    if @user.blank?
-      flash[:error] = I18n.t('password_reset.no_token')
-    elsif request.put?
-      raise Discourse::InvalidParameters.new(:password) unless params[:password].present?
-      @user.password = params[:password]
-      logon_after_password_reset if @user.save
-    end
-    render layout: 'no_js'
-  end
-
-  def logon_after_password_reset
-    message = if Guardian.new(@user).can_access_forum?
-                # Log in the user
-                log_on_user(@user)
-                'password_reset.success'
-              else
-                @requires_approval = true
-                'password_reset.success_unapproved'
-              end
-
-    flash[:success] = I18n.t(message)
-   end
 
   def change_email
     params.require(:email)

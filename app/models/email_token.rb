@@ -36,7 +36,7 @@ class EmailToken < ActiveRecord::Base
 
   def self.confirm(token)
     return unless token.present?
-    return unless token.length/2 == EmailToken.token_length
+    return unless token.length / 2 == EmailToken.token_length
 
     email_token = EmailToken.where("token = ? and expired = FALSE and created_at >= ?", token, EmailToken.valid_after).includes(:user).first
     return if email_token.blank?

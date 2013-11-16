@@ -131,8 +131,8 @@ Discourse::Application.routes.draw do
   get 'privacy' => 'static#show', id: 'privacy'
 
   get 'users/search/users' => 'users#search_users'
-  get 'users/password-reset/:token' => 'users#password_reset'
-  put 'users/password-reset/:token' => 'users#password_reset'
+  get 'users/password-reset/:token' => 'passwords#edit'
+  put 'users/password-reset/:token' => 'passwords#update'
   get 'users/activate-account/:token' => 'users#activate_account'
   get 'users/authorize-email/:token' => 'users#authorize_email'
   get 'users/hp' => 'users#get_honeypot_value'
