@@ -14,15 +14,19 @@ class PasswordsController < ApplicationController
 
   def update
     raise Discourse::InvalidParameters.new(:password) unless params[:password].present?
+    @user = EmailToken.confirm(params[:token])
     @user.password = params[:password]
-    logon_after_password_reset if @user.save
+    if @user.save
+      logon_after_password_reset
+    else
+      render :edit
+    end
   end
 
   private
 
   def logon_after_password_reset
     message = if Guardian.new(@user).can_access_forum?
-                # Log in the user
                 log_on_user(@user)
                 'password_reset.success'
               else

@@ -22,6 +22,55 @@ describe User do
   it { should validate_presence_of :username }
   it { should validate_presence_of :email }
 
+  context '#confirm' do
+    let(:user) { Fabricate(:user, active: false) }
+    let(:email_token) { user.email_tokens.first }
+
+    context 'taken email address' do
+      before do
+        @other_user = Fabricate(:coding_horror)
+        email_token.update_attribute :email, @other_user.email
+      end
+
+      it 'returns nil when the email has been taken since the token has been generated' do
+        user.confirm(email_token).should be_blank
+      end
+    end
+
+    context 'welcome message' do
+      it 'sends a welcome message when the user is activated' do
+        user.confirm(email_token)
+        user.send_welcome_message.should be_true
+      end
+
+      context "when using the code a second time" do
+        before do
+          user.confirm(email_token)
+        end
+
+        it "doesn't send the welcome message" do
+          user.confirm(email_token)
+          user.send_welcome_message.should be_false
+        end
+      end
+    end
+
+    context 'success' do
+      before do
+        user.confirm(email_token)
+      end
+
+      it 'marks the user as active' do
+        user.reload
+        user.should be_active
+      end
+
+      it 'marks the token as confirmed' do
+        email_token.reload
+        email_token.should be_confirmed
+      end
+    end
+  end
 
   context '.enqueue_welcome_message' do
     let(:user) { Fabricate(:user) }

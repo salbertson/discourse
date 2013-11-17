@@ -9,7 +9,7 @@ describe SessionController do
     context 'when email is confirmed' do
       before do
         token = user.email_tokens.where(email: user.email).first
-        EmailToken.confirm(token.token)
+        user.confirm(token)
       end
 
       it "raises an error when the login isn't present" do

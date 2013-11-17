@@ -110,6 +110,20 @@ class User < ActiveRecord::Base
     user
   end
 
+  def confirm(email_token)
+    User.transaction do
+      row_count = EmailToken.where(id: email_token.id, expired: false).update_all 'confirmed = true'
+      if row_count == 1
+        # If we are activating the user, send the welcome message
+        self.send_welcome_message = !active?
+
+        self.active = true
+        self.email = email_token.email
+        self.save!
+      end
+    end
+  end
+
   def self.suggest_name(email)
     return "" unless email
     name = email.split(/[@\+]/)[0]
