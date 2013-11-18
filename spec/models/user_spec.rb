@@ -744,7 +744,7 @@ describe User do
     context 'when email has been confirmed' do
       it 'should return true' do
         token = user.email_tokens.where(email: user.email).first
-        EmailToken.confirm(token.token)
+        user.confirm(token)
         user.email_confirmed?.should be_true
       end
     end

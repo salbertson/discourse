@@ -34,7 +34,7 @@ else
   puts "Booting in Rails 3 mode"
 end
 
-gem 'seed-fu' , github: 'SamSaffron/seed-fu'
+gem 'seed-fu', github: 'SamSaffron/seed-fu'
 
 if rails4?
   gem 'rails'

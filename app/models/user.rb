@@ -119,7 +119,7 @@ class User < ActiveRecord::Base
 
         self.active = true
         self.email = email_token.email
-        self.save!
+        return self.save
       end
     end
   end
